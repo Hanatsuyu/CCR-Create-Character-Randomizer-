@@ -1,0 +1,521 @@
+<!CCR>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CCR (Create Character Randomizer) - By Mineral Power</title>
+<style>
+/* ตัวแปรสีเริ่มต้น */
+:root{
+	--bg:#0e0f14;
+	--panel:#171823;
+	--soft:#23243a;
+	--text:#e8e9f0;
+	--muted:#9aa0c7;
+	/* ตัวแปรสีที่เปลี่ยนได้ */
+	--accent:#7aa2ff; /* สีเน้นหลัก */
+	--accent-shadow:rgba(122,162,255,.35); /* เงาสำหรับสีเน้นหลัก */
+	--accent2:#ff7ab6; /* สีเน้นรอง (ใช้สำหรับปุ่ม) */
+	--accent2-shadow:rgba(255,122,182,.45); /* เงาสำหรับสีเน้นรอง */
+	--name-color:#ffd36a; /* สีชื่อเริ่มต้น */
+}
+*{box-sizing:border-box}
+body{
+	margin:0;
+	font-family:"Segoe UI",system-ui,sans-serif;
+	/* ใช้ตัวแปรสีเพื่อปรับพื้นหลังให้เข้ากับสีแร่ */
+	background:radial-gradient(1200px 600px at top,var(--soft),var(--bg)); 
+	color:var(--text);
+	text-align:center;
+	/* เพิ่ม transition สำหรับพื้นหลังหลัก */
+	transition: background 0.8s ease, box-shadow 0.8s ease; 
+}
+
+/* 1. KEYFRAMES สำหรับเอฟเฟกต์พื้นหลัง BODY */
+@keyframes bodyRevealGlow {
+    0% {
+        background: radial-gradient(1200px 600px at top, var(--soft), var(--bg)); 
+    }
+    30% {
+        /* เร่งแสงในช่วงแรกให้สว่างวาบจากจุดศูนย์กลาง */
+        background: radial-gradient(1200px 600px at top, var(--accent) 5%, var(--bg) 90%);
+    }
+    100% {
+        /* กลับไปสู่สถานะปกติแต่ยังคงมีแสงสว่างรอบๆ */
+        background: radial-gradient(1200px 600px at top, var(--soft), var(--bg)); 
+    }
+}
+
+/* 2. CLASS ที่ใช้เรียกเอฟเฟกต์พื้นหลัง BODY */
+body.final-body-glow {
+    animation: bodyRevealGlow 0.8s ease-out forwards;
+}
+
+
+/* *** Title: สีดำขอบเงิน *** */
+h1{
+	margin:24px 0 12px;
+	font-weight:700;
+	letter-spacing:1px; 
+	font-size: 30px; 
+	color: #111111; 
+	
+	text-shadow: 
+		-1px -1px 0 #cccccc,  
+		 1px -1px 0 #cccccc,
+		-1px 1px 0 #cccccc,
+		 1px 1px 0 #cccccc,
+		 0 0 10px rgba(255, 255, 255, 0.5); 
+	-webkit-text-stroke: 0.5px #cccccc; 
+	transition: all 0.5s ease;
+}
+
+section{
+	margin:14px auto;
+	width:360px;
+	padding:14px 16px 16px;
+	border-radius:16px;
+	background:linear-gradient(180deg,var(--panel),#131421);
+	box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+    transition: all 0.5s ease;
+}
+
+/* KEYFRAMES สำหรับเอฟเฟกต์พื้นหลัง SECTION (เดิม) */
+@keyframes finalRevealGlow {
+    0% {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 var(--accent-shadow);
+    }
+    50% {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--accent), inset 0 0 10px var(--accent-shadow);
+        background: radial-gradient(circle at center, var(--soft) 5%, var(--panel) 70%, #131421);
+    }
+    100% {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+}
+
+/* CLASS ที่ใช้เรียกเอฟเฟกต์ SECTION (เดิม) */
+section.reveal-glow {
+    animation: finalRevealGlow 0.8s ease-out forwards;
+}
+
+h2{
+	margin:4px 0 10px;
+	font-size:14px;
+	color:var(--muted);
+	letter-spacing:1.5px;
+}
+.slot{
+	font-size:18px;
+	padding:14px 16px;
+	margin:10px 0 12px;
+	border-radius:14px;
+	background:linear-gradient(180deg,#0b0c12,#000);
+	color:var(--accent); 
+	min-height:34px;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+	box-shadow:inset 0 0 0 1px var(--accent-shadow); 
+	transition:color 0.5s ease, box-shadow 0.5s ease;
+}
+@keyframes slotSpinGlow {
+	0% { box-shadow: inset 0 0 0 1px var(--accent-shadow), 0 0 5px var(--accent), 0 0 10px var(--accent); }
+	100% { box-shadow: inset 0 0 0 1px var(--accent-shadow), 0 0 0px var(--accent); }
+}
+.slot.active {
+	animation: slotSpinGlow 0.15s ease-in-out infinite alternate;
+}
+
+button{
+	appearance:none;
+	margin:0 6px;
+	padding:8px 18px;
+	border:none;
+	border-radius:999px;
+	cursor:pointer;
+	background:linear-gradient(180deg,var(--accent2),#ff5fa2); 
+	color:#0b0c12;
+	font-weight:700;
+	box-shadow:0 6px 16px var(--accent2-shadow); 
+	transition:transform .15s ease, box-shadow .15s ease, filter .15s ease, background 0.5s ease;
+}
+button:hover{
+	transform:translateY(-2px);
+	box-shadow:0 12px 25px var(--accent2-shadow), 0 0 15px rgba(255,255,255,.2); 
+}
+button:active{transform:translateY(0)}
+
+.nameBox{
+	margin-top:10px;
+	font-size:24px;
+	font-weight:800;
+	letter-spacing:2px;
+	color:var(--name-color); 
+	text-shadow:0 0 20px var(--accent-shadow);
+	transition:color 0.8s ease, text-shadow 0.8s ease;
+	animation: popIn 0.5s ease;
+}
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Style สำหรับการ์ดผลลัพธ์สุดท้าย */
+#final{
+	font-size:14px;
+	line-height:1.7;
+	color:var(--muted);
+	margin-top:15px;
+	padding:15px;
+	border-radius:10px;
+	background:rgba(255,255,255,0.02);
+	border:1px solid rgba(255,255,255,0.05);
+	text-align:left;
+	animation: fadeIn 0.8s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#final h3 {
+	margin:0 0 10px;
+	color:var(--accent);
+	font-size:16px;
+	text-align:center;
+	border-bottom:1px solid rgba(255,255,255,0.05);
+	padding-bottom:5px;
+}
+.result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 8px 15px;
+    align-items: start;
+}
+.result-item {
+    font-size: 14px;
+    padding: 2px 0;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.result-item strong {
+    color: var(--muted);
+    font-weight: 500;
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.trait-item, .mineral-item {
+    grid-column: 1 / -1; 
+}
+.trait-item .value {
+    white-space: normal; 
+    font-size: 14px;
+    color: var(--accent);
+}
+.mineral-item .value {
+    color: var(--name-color);
+    font-weight: 700;
+}
+.result-item .value {
+    color: var(--text);
+    font-weight: 600;
+    display: block;
+}
+</style>
+</head>
+<body>
+<h1>🎮 CCR (Create Character Randomizer)</h1>
+
+<section id="genderSec"></section>
+<section id="ageSec"></section>
+<section id="raceSec"></section>
+<section id="animalSec"></section>
+<section id="eraSec"></section>
+<section id="weaponSec"></section>
+<section id="traitSec"></section>
+<section id="mineralSec"></section>
+
+<section id="finalSection">
+<button onclick="spinAll()">🎰 Spin All</button>
+<div class="nameBox" id="charName">---</div>
+<div id="final"></div>
+</section>
+
+<script>
+// ===== DATA (Age มี Appearance Mismatch) =====
+const data={
+	gender:["Male","Female","Unspecified","Gender Mismatch"],
+	age:[
+"15-18 Teen","19-30 Young Adult","31-45 Adult","46-60 Middle Age","60+ Elder",
+"Appearance Mismatch"
+],
+	race:["Human","Elf","Dragonkin","Vampire","Beastkin","Demon","Angel","Cyborg"],
+	animal:[
+"Wolf","Arctic Wolf","Red Wolf","Fox","Arctic Fox","Fennec Fox","Lion","White Lion","Tiger","Bengal Tiger","Siberian Tiger","Bear","Brown Bear","Polar Bear","Grizzly Bear","Hyena","Spotted Hyena","Elephant","African Elephant","Asian Elephant","Rhinoceros","White Rhino","Black Rhino","Hippopotamus","Horse","Mustang","Zebra","Donkey","Deer","Red Deer","Elk","Moose","Reindeer","Bat","Fruit Bat","Vampire Bat","Panda","Red Panda","Koala","Kangaroo","Wallaby","Wombat","Platypus","Sloth","Anteater","Armadillo","Gorilla","Chimpanzee","Bonobo","Orangutan","Baboon","Mandrill","Leopard","Snow Leopard","Jaguar","Panther","Cheetah","Lynx","Bobcat","Cougar","Raccoon","Skunk","Badger","Wolverine","Otter","Sea Otter","Weasel","Ferret","Mink","Seal","Sea Lion","Walrus","Dolphin","Bottlenose Dolphin","Orca","Whale","Blue Whale","Humpback Whale","Beluga","Narwhal","Manatee","Dugong","Crocodile","Alligator","Caiman","Snake","Cobra","Python","Anaconda","Viper","Gecko","Iguana","Chameleon","Komodo Dragon","Monitor Lizard","Turtle","Sea Turtle","Tortoise","Frog","Tree Frog","Bullfrog","Toad","Salamander","Newt","Axolotl","Eagle","Golden Eagle","Bald Eagle","Hawk","Falcon","Peregrine Falcon","Owl","Snowy Owl","Barn Owl","Crow","Raven","Magpie","Jay","Peacock","Penguin","Emperor Penguin","Parrot","Macaw","Cockatoo","Parakeet","Canary","Finch","Sparrow","Swallow","Flamingo","Crane","Heron","Stork","Swan","Goose","Duck","Albatross","Condor","Vulture","Hummingbird","Kingfisher","Woodpecker","Butterfly","Moth","Beetle","Stag Beetle","Scarab","Ladybug","Ant","Fire Ant","Bee","Bumblebee","Wasp","Hornet","Termite","Grasshopper","Cricket","Cicada","Dragonfly","Damselfly","Mantis","Stick Insect","Cockroach","Spider","Tarantula","Black Widow","Wolf Spider","Scorpion","Centipede","Millipede","Isopod","Pill Bug","Shrimp","Krill","Crab","Hermit Crab","Lobster","Crayfish","Octopus","Giant Octopus","Squid","Giant Squid","Cuttlefish","Nautilus","Jellyfish","Box Jellyfish","Sea Urchin","Starfish","Sea Cucumber","Clownfish","Angelfish","Surgeonfish","Tang","Betta","Guppy","Goldfish","Koi","Carp","Catfish","Piranha","Barracuda","Swordfish","Marlin","Tuna","Eel","Moray Eel","Seahorse","Pipefish","Manta Ray","Stingray","Hammerhead Shark","Great White Shark","Whale Shark","Nurse Shark","Sawfish","Lamprey","Mudskipper","Flying Fish"
+],
+	era:[ // ปรับปรุง ERA: ลบ Cyberpunk
+"Ancient","Medieval","Renaissance","Industrial","Modern","Sci-Fi","Post-Apocalypse"
+],
+	weapon:[
+"None","Sword","Short Sword","Long Sword","Greatsword","Rapier","Katana","Wakizashi","Scimitar","Falchion","Cutlass","Dagger","Dirk","Stiletto","Kris","Kukri","Spear","Lance","Pike","Halberd","Glaive","Naginata","Trident","Bow","Longbow","Shortbow","Recurve Bow","Crossbow","Hand Crossbow","Sling","Throwing Knife","Throwing Axe","Javelin","Mace","Flail","Morningstar","Warhammer","Maul","Axe","Battle Axe","Hand Axe","Greataxe","Pickaxe","Scythe","Sickle","Whip","Chain Whip","Spiked Chain","Shield","Buckler","Tower Shield","Heater Shield","Magic Staff","Wizard Staff","Rod","Wand","Grimoire","Spellbook","Tome","Orb","Crystal Focus","Rune Blade","Enchanted Sword","Cursed Blade","Holy Blade","Blood Blade","Shadow Blade","Light Blade","Twin Blades","Claws","Gauntlet","Spiked Gauntlet","Knuckle Duster","Katar","Tonfa","Sai","Nunchaku","Bo Staff","Quarterstaff","War Fan","Chakram","Boomerang","Blowpipe","Needle","Poison Dart","Musical Weapon","Living Weapon","Parasitic Weapon","Mech Arm","Power Fist","Energy Blade","Plasma Sword","Laser Lance","Mono Knife","Wire Garrote","Chain Saw Blade","Bone Weapon","Fang Dagger","Obsidian Blade","Crystal Spear"
+],
+	trait:[
+"Calm","Hot-headed","Lazy","Cheerful","Tsundere","Sadistic","Kind","Cunning","Stoic","Playful","Protective","Flirtatious","Cold","Innocent","Obsessive","Shy","Bold","Arrogant","Gentle","Cruel","Yandere","Kuudere","Deredere","Sarcastic","Optimistic","Pessimistic","Naive","Manipulative","Loyal","Rebellious"
+],
+	mineral:[
+"Diamond","Black Diamond","Pink Diamond","Blue Diamond","Gold","Rose Gold","White Gold","Silver","Sterling Silver","Electrum","Copper","Bronze","Brass","Iron","Cast Iron","Steel","Damascus Steel","Cobalt","Nickel","Chromium","Titanium","Tungsten","Vanadium","Aluminum","Zinc","Tin","Lead","Mercury","Platinum","Palladium","Iridium","Osmium","Ruthenium","Quartz","Clear Quartz","Rose Quartz","Smoky Quartz","Amethyst","Citrine","Ametrine","Obsidian","Snow Obsidian","Mahogany Obsidian","Onyx","Jet","Jade","Nephrite","Jadeite","Emerald","Ruby","Sapphire","Yellow Sapphire","Pink Sapphire","Spinel","Topaz","Peridot","Aquamarine","Morganite","Garnet","Almandine","Pyrope","Tourmaline","Opal","Fire Opal","Moonstone","Sunstone","Labradorite","Larimar","Turquoise","Malachite","Azurite","Chrysocolla","Lapis Lazuli","Sodalite","Fluorite","Calcite","Dolomite","Aragonite","Hematite","Magnetite","Pyrite","Chalcopyrite","Bornite","Galena","Bauxite","Mythril","Orichalcum","Adamantite","Aetherite","Voidstone","Shadow Crystal","Light Crystal","Bloodstone","Soul Gem","Star Crystal","Sun Crystal","Moon Crystal","Aurora Stone","Prism Stone"
+]
+};
+
+const results={};
+
+// ===== UI BUILD (ไม่เปลี่ยนแปลง) =====
+function createSection(key,title){
+	const sec=document.getElementById(key+"Sec");
+	sec.innerHTML=`<h2>${title}</h2><div class='slot' id='${key}Slot'>---</div><button onclick='spinSlot("${key}")'>Spin</button>`;
+}
+Object.keys(data).forEach(k=>createSection(k,k.toUpperCase()));
+
+// ===== COLOR LOGIC FOR MINERALS (ไม่เปลี่ยนแปลง) =====
+function getMineralColor(mineralName){
+	const lowerName = mineralName.toLowerCase();
+	let accent, accent2; 
+
+	if (lowerName.includes("diamond") || lowerName.includes("clear quartz")) {
+		accent = "#b3f0ff"; accent2 = "#4ce6ff"; 
+	} else if (lowerName.includes("black diamond") || lowerName.includes("obsidian") || lowerName.includes("jet") || lowerName.includes("voidstone")) {
+		accent = "#828282"; accent2 = "#4a4a4a"; 
+	} else if (lowerName.includes("pink diamond") || lowerName.includes("morganite") || lowerName.includes("rose quartz")) {
+		accent = "#ffb3d9"; accent2 = "#ff69b4"; 
+	} else if (lowerName.includes("blue diamond") || lowerName.includes("sapphire") || lowerName.includes("lapis lazuli") || lowerName.includes("larimar")) {
+		accent = "#67b2ff"; accent2 = "#007bff"; 
+	} else if (lowerName.includes("gold") || lowerName.includes("citrine") || lowerName.includes("pyrite")) {
+		accent = "#ffd36a"; accent2 = "#ffae00"; 
+	} else if (lowerName.includes("silver") || lowerName.includes("platinum") || lowerName.includes("titanium") || lowerName.includes("mythril")) {
+		accent = "#e0e0e0"; accent2 = "#a9a9a9"; 
+	} else if (lowerName.includes("copper") || lowerName.includes("bronze") || lowerName.includes("brass")) {
+		accent = "#ff8c4f"; accent2 = "#cc6600"; 
+	} else if (lowerName.includes("iron") || lowerName.includes("steel") || lowerName.includes("adamantite") || lowerName.includes("hematite")) {
+		accent = "#9aa0c7"; accent2 = "#6c728e"; 
+	} else if (lowerName.includes("ruby") || lowerName.includes("garnet") || lowerName.includes("bloodstone") || lowerName.includes("fire opal")) {
+		accent = "#ff4f4f"; accent2 = "#cc0000"; 
+	} else if (lowerName.includes("emerald") || lowerName.includes("jade") || lowerName.includes("malachite") || lowerName.includes("peridot")) {
+		accent = "#4fff8c"; accent2 = "#00cc44"; 
+	} else if (lowerName.includes("amethyst") || lowerName.includes("tourmaline") || lowerName.includes("fluorite")) {
+		accent = "#b767ff"; accent2 = "#8a2be2"; 
+	} else if (lowerName.includes("sunstone") || lowerName.includes("topaz")) {
+		accent = "#ffcc66"; accent2 = "#ff9900"; 
+	} else if (lowerName.includes("moonstone") || lowerName.includes("aetherite")) {
+		accent = "#c0e0ff"; accent2 = "#80bfff"; 
+	} else if (lowerName.includes("light crystal") || lowerName.includes("prism stone")) {
+		accent = "#ffffff"; accent2 = "#e6e6e6"; 
+	} else if (lowerName.includes("shadow crystal") || lowerName.includes("voidstone")) {
+		accent = "#444444"; accent2 = "#111111"; 
+	} else {
+		accent = "#7aa2ff"; accent2 = "#ff7ab6"; 
+	}
+	
+	const root = document.documentElement.style;
+	root.setProperty('--accent', accent);
+	root.setProperty('--accent-shadow', accent + '35'); 
+	root.setProperty('--accent2', accent2);
+	root.setProperty('--accent2-shadow', accent2 + '45'); 
+	root.setProperty('--name-color', accent); 
+    // ใช้สีใหม่สำหรับพื้นหลังอ่อนเมื่อมีเอฟเฟกต์
+	root.setProperty('--soft', accent + '30'); 
+}
+
+// ===== SPIN (เพิ่ม Logic สำหรับ Age Mismatch) =====
+function spinSlot(key){
+	const list=data[key];
+	const slot=document.getElementById(key+"Slot");
+    slot.classList.add('active'); 
+
+	let count=0;
+	
+	slot.style.animation = 'none'; 
+	slot.offsetHeight; 
+	
+	const interval=setInterval(()=>{
+	 slot.textContent=list[Math.floor(Math.random()*list.length)];
+	 if(++count>20){
+	 	clearInterval(interval);
+        slot.classList.remove('active'); 
+
+	 	if(key==="age"){
+            const selectedAge = slot.textContent;
+            
+            // --- AGE MISMATCH LOGIC ---
+            if (selectedAge === "Appearance Mismatch") {
+                const mismatchType = ["Elderly in Young Body", "Young in Mature Body"];
+                const finalMismatch = mismatchType[Math.floor(Math.random() * mismatchType.length)];
+                
+                results.age = `Age: Mismatch (${finalMismatch})`;
+                slot.textContent = `A. Mismatch: ${finalMismatch.split(" ")[0]}`; 
+                results.ageMismatch = finalMismatch; 
+                // ถึงแม้จะไม่ได้แสดงใน Final Output แต่ต้องกำหนดค่า body ไว้สำหรับความสมบูรณ์ของ data
+                results.body = finalMismatch.includes("Young Body") 
+                    ? "Young/Small Frame" 
+                    : "Mature/Tall Frame";
+            } else {
+                // กรณีสุ่มได้ช่วงอายุปกติ
+                results[key] = selectedAge;
+	 		    const bodyTypes=["Young-looking Body","Mature-looking Body","Small Frame","Tall Frame"];
+	 		    const body=bodyTypes[Math.floor(Math.random()*bodyTypes.length)];
+	 		    results.body=body;
+                results.ageMismatch = null; // ล้าง Mismatch ออก
+            }
+	 	}
+        // Multi-trait logic (ไม่เปลี่ยนแปลง)
+	 	else if(key==="trait"){
+	 		const traitCount=Math.floor(Math.random()*2)+2; 
+	 		const shuffled=[...list].sort(()=>0.5-Math.random());
+	 		results.trait=shuffled.slice(0,traitCount).join(" / ");
+	 		slot.textContent=results.trait;
+	 	}
+        // Normal keys
+        else{
+	 		results[key]=slot.textContent;
+	 	}
+
+		if(key === "mineral" && results.mineral){
+			getMineralColor(results.mineral);
+		}
+
+	 	updateFinal();
+	 }
+	},80);
+}
+
+function spinAll(){
+	getMineralColor("Default"); 
+    // ล้างเอฟเฟกต์เรืองแสงเดิมออกก่อนเริ่มสปินใหม่
+    document.getElementById('finalSection').classList.remove('reveal-glow'); 
+    document.body.classList.remove('final-body-glow'); // ล้างเอฟเฟกต์พื้นหลัง body
+
+    Object.keys(data).forEach(k => {
+        document.getElementById(k + "Slot").classList.add('active');
+    });
+	Object.keys(data).forEach(k=>spinSlot(k));
+}
+
+// ===== NAME GENERATOR (ปรับปรุงให้หลากหลายและยาวขึ้น) =====
+const vowels = ["a", "e", "i", "o", "u", "a", "e", "i"]; 
+const consonants = ["b", "c", "d", "f", "g", "h", "k", "l", "m", "n", "r", "s", "t", "v", "z", "x", "sh", "th"];
+
+function randomChoice(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function syl() {
+    // สร้างพยางค์ C-V (พยัญชนะ-สระ)
+    return randomChoice(consonants) + randomChoice(vowels);
+}
+
+function generateName() {
+    const era = results.era || "Modern";
+    let name = "";
+    
+    // สุ่มจำนวนพยางค์ (2 ถึง 3 พยางค์)
+    const numSyl = Math.floor(Math.random() * 2) + 2; 
+
+    // สร้างชื่อหลัก
+    name = syl();
+
+    if (numSyl === 2) {
+        name += syl();
+    } else if (numSyl === 3) {
+        name += syl() + randomChoice(["ra", "lin", "dor", "ya", "san", "ko", "el"]);
+    }
+
+    // เพิ่มตัวอักษรพิเศษตามยุคสมัย
+    if (era === "Sci-Fi") {
+        name = randomChoice(["Kai", "Zyl", "Xen", "Lys", "Ael"]) + name.slice(1);
+    } else if (era === "Ancient" || era === "Medieval") {
+        // ชื่อยุคเก่าอาจลงท้ายด้วย R, N, D
+        name += randomChoice(["r", "d", "n", "s", ""]); 
+    }
+
+    // จัดการการขึ้นต้นด้วยตัวพิมพ์ใหญ่
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    
+    // ตรวจสอบความยาวขั้นต่ำ
+    if (name.length < 4) {
+        return generateName(); // สุ่มใหม่ถ้าสั้นไป
+    }
+
+    return name;
+}
+
+// ===== FINAL UPDATE (เพิ่มเอฟเฟกต์ Body Glow) =====
+function updateFinal(){
+	const charName=generateName();
+	document.getElementById("charName").textContent=charName;
+	
+	const finalDiv = document.getElementById("final");
+	const finalSection = document.getElementById('finalSection'); 
+
+    // 3. เรียกใช้เอฟเฟกต์ Body Glow และ Section Glow พร้อมกัน
+    // Body Glow
+    document.body.style.animation = 'none';
+    document.body.offsetHeight; 
+    document.body.classList.add('final-body-glow'); 
+
+    // Section Glow (เหมือนเดิม)
+    finalSection.style.animation = 'none';
+    finalSection.offsetHeight; 
+    finalSection.classList.add('reveal-glow'); 
+	
+	let resultHTML = '';
+	
+    // ลำดับคีย์ที่ต้องการแสดงผลใน Grid
+    const keysOrder = Object.keys(data); 
+
+    // กรองคีย์ 'body' ออก
+    const allResultKeys = keysOrder.filter(k => k !== 'body'); 
+    
+    // ตรวจสอบว่ามีการสุ่ม Age Mismatch ได้หรือไม่
+    const hasMismatch = !!results.ageMismatch;
+    
+	// สร้าง Grid Layout 2 คอลัมน์
+	allResultKeys.forEach(k=>{
+        let value = results[k] || '---';
+        let title = k.toUpperCase();
+		let itemClass = 'result-item';
+
+        // จัดการ Age Mismatch Title & Value
+        if (k === 'age' && hasMismatch) {
+            // เมื่อเป็น Mismatch ให้เปลี่ยนชื่อคอลัมน์ Age เป็น ACTUAL AGE และใช้ผลลัพธ์ย่อย
+            title = 'ACTUAL AGE'; 
+            value = results.ageMismatch;
+        }
+
+		if (k === 'trait') {
+			itemClass += ' trait-item';
+            title = 'TRAITS';
+		} else if (k === 'mineral') {
+			itemClass += ' mineral-item';
+            title = 'Mineral';
+		}
+
+		resultHTML += 
+		`<div class="${itemClass}">
+			<strong>${title}</strong>
+			<span class="value">${value}</span>
+		</div>`;
+	});
+	
+	finalDiv.innerHTML=
+	 '<h3>✨ Character Profile Generated!</h3>'+
+	 `<div class="result-grid">${resultHTML}</div>`;
+}
+
+// ตั้งค่าสีเริ่มต้นเมื่อโหลดหน้า
+getMineralColor("Default"); 
+</script>
+</body>
+</html>
